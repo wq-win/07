@@ -28,7 +28,7 @@ class RF_Neuron:
         self.I = I
         self.b = -0.05
         self.omega = 0.25
-        self.z_reset = 1j
+        self.z_reset = 0+1j
 
     def derivative(self, state, inputs=0):
         z = state
@@ -37,8 +37,8 @@ class RF_Neuron:
 
     def step(self, state, dt, inputs=0):
         z_new = rk4(dt, state, inputs, self.derivative)
-        # if z_new.imag >= 1:
-        #     z_new = self.z_reset
+        if z_new.imag >= 1:
+            z_new = self.z_reset
         return z_new
 
 
@@ -48,7 +48,7 @@ t_end = 100
 times = np.arange(t_start, t_end, dt)
 
 RF = RF_Neuron(0.2)
-z = 0 + 1j
+z = 0 + 0j
 z_real = []
 z_imag = []
 for t in times:
@@ -56,13 +56,20 @@ for t in times:
     z_imag.append(z.imag)
     z = RF.step(z, dt)
 
-peaks, _ = find_peaks(z_real )  # peaks = [15708,40841,65973,91106]
+peaks, _ = find_peaks(z_imag )  # peaks = [15708,40841,65973,91106]
 
 plt.figure()
 plt.subplot(122)
-plt.plot(times, z_real, )
-# plt.plot(times[15708], z_real[15708],'x')
-plt.vlines(times[15708],z_real[15708],1)
+plt.plot(times, z_imag,)
+plt.vlines(times[peaks[0]],z_imag[peaks[0]],2)
+plt.xlabel('time,ms')
+plt.ylabel('y')
+plt.plot(times, np.ones(len(times)),':',label='threshold')
+
 plt.subplot(121)
 plt.plot(z_real, z_imag)
+plt.xlabel('x')
+plt.ylabel('y')
+plt.plot(z_real, np.ones(len(z_real)),':',label='threshold')
+plt.legend()
 plt.show()

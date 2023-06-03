@@ -25,16 +25,12 @@ def rk4(h, y, inputs, f):
 
 class RF_Neuron:
     def __init__(self, I):
-        self.GL = 0.025  # gating
-        self.EL = -10  # leak potential
+        self.GL = 0.25  # gating
+        self.EL = -0  # leak potential
         self.I = I  # inject current
         self.C = 0.5  # capacitance
-        self.V_half = -5
+        self.V_half = -0
         self.K=0.25
-        # v_peak > v_threshold
-        # self.v_peak = 30
-        # self.v_reset = -60
-        # self.v_threshold = -50
 
     def derivative(self, state, inputs=0):
         v, w = state
@@ -44,12 +40,7 @@ class RF_Neuron:
 
     def step(self, state, dt, inputs=0):
         state_new = rk4(dt, state, state, self.derivative)
-        # if self.v_threshold < state_new < 0:
-        #     v_new = self.v_peak
-        # elif state_new > 0:
-        #     v_new = self.v_reset
         return state_new
-
 
 
 dt = 0.001
@@ -58,7 +49,7 @@ t_end = 20
 times = np.arange(t_start, t_end, dt)
 
 RF = RF_Neuron(0.2)
-state = np.array([0, 0])
+state = np.array([0, 1])
 v_state = []
 w_state = []
 
@@ -66,10 +57,10 @@ for t in times:
     v_state.append(state[0])
     w_state.append(state[1])
     state = RF.step(state, dt)
-
+print(v_state[-1])
 plt.figure()
 plt.subplot(122)
-plt.plot(times, v_state, )
+plt.plot(times, w_state, )
 plt.subplot(121)
 plt.plot(v_state, w_state)
 plt.show()
